@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <title>JS-GEN Formula</title>
+        <meta charset='UTF-8' />
+    </head>
+    
+    <body>
+        <label>Set a number</label>
+        <input id='searchValue' type="number" step='1' />
+        <input type='button' onClick='onClick()' value='Generate' />
+
+        <br>
+        <br>
+        
+        <div id='result'></div>
+
+        
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+            var socket = io();
+            var result = document.getElementById('result');
+
+            var onClick = function () {
+                socket.emit('data', Number(document.getElementById('searchValue').value));
+            }
+
+            socket.on('err', function (error) {
+                alert(error);
+            })
+
+            socket.on('result', function (data) {
+                result.innerHTML += ['<p>', data, '</p>'].join('')
+            });
+        </script>
+    </body>
+</html>
