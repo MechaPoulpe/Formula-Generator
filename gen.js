@@ -264,10 +264,14 @@ module.exports = {
             resultat = scorePopulation(population, searchValue).sort(compare);
             best = resultat[0][0];
             if (best === 0) {
-                socket.emit('result', 'Formula : '+ geneToFormula(chromosomeToGene(resultat[0])) + ' Generation n° ' + (i + 1))
+                socket.emit('result', 'Formula : '+ geneToFormula(chromosomeToGene(resultat[0])) + ' Generation n° ' + (i))
                 break;
             }
             population = mutation(nextGeneration(selection(population)));
+        }
+        
+        if (best !== 0) {
+            socket.emit('err', 'This time we don\'t find formula... Best one is: ' + geneToFormula(chromosomeToGene(resultat[0])));
         }
     }
 }
