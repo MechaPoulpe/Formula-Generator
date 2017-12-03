@@ -1,0 +1,72 @@
+.App {
+  text-align: left;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 50px;
+  display: inline-block;
+}
+
+.App-header {
+  background-color: #222;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  0%   {transform: rotate(0deg);}
+  25%  {transform: rotate(180deg);}
+  50%  {transform: rotate(360deg);}
+  75%  {transform: rotate(-180deg);}
+  100% {transform: rotate(0deg);}
+}
+
+.GenerationList {
+  text-align: center;
+}
+
+.Generation {
+  width: auto;
+  padding: 5px;
+  margin: 5px;
+  display: inline-block;
+  border-radius: 5px;
+  text-align: left;
+}
+
+.GenerationLabel {
+  font-size: 12px;
+  color: #bdbdbd;
+}
+
+.NumberBar {
+  display: flex;
+  justify-content: center;
+}
+
+.NumberBarLabel {
+  padding-top: 12px;
+  padding-left: 12px;
+}
+
+.NumberBarInput {
+  margin: 10px;
+  height: 40px;
+  padding: 5px;
+  font-size: 18px;
+}
+
+.NumberBarButton {
+  margin: 10px;
+}
