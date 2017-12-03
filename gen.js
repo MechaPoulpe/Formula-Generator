@@ -32,9 +32,9 @@ var makeChromosome = function () {
     return [null, chromosome];
 }
 
-var makePopulation = function () {
+var makePopulation = function (nbGen) {
     var population = [];
-    for (var i = 0; i < 100; i++) {
+    for (var i = 0; i < nbGen; i++) {
         population.push(makeChromosome());
     }
     return population;
@@ -119,8 +119,7 @@ var tradGene = function (gene) {
 }
 
 var selection = function (population) {
-    var selected = population.slice(0, 49).shuffle();
-    return selected;
+    return population.slice(0, 79).shuffle();;
 }
 
 var geneToFormula = function (gene) {
@@ -174,14 +173,10 @@ var evaluation = function (searchValue, genes) {
         result;
 
     //Determine if a formula is human readable (avoid Javascript magic implementation)
-    if (!checkFormula(formula)) {
+    try {
+        result = Math.abs(searchValue - eval(formula));
+    } catch (e) {
         result = 999999999999;
-    } else {
-        try {
-            result = Math.abs(searchValue - eval(formula));
-        } catch (e) {
-            result = 999999999999;
-        }
     }
     
     if (!Number.isInteger(result)) {
@@ -207,23 +202,19 @@ var crossover = function (parent1, parent2) {
     var child1 = [null, parent1[1].substr(0, point) + parent2[1].substr(point)];
     var child2 = [null, parent2[1].substr(0, point) + parent1[1].substr(point)];
 
-    //Create new random point
-    point = Math.floor((Math.random() * 47 + 1));
-    var child3 = [null, parent1[1].substr(0, point) + parent2[1].substr(point)];
-    var child4 = [null, parent2[1].substr(0, point) + parent1[1].substr(point)];
-
-    return [child1, child2, child3, child4];
+    return [child1, child2];
 }
 
 var nextGeneration = function (selection) {
-    var population = [],
+    var population = makePopulation(20),
         parentTab,
         childTab;
-    for (var i = 0; i < 24; i++) {
+    for (var i = 0; i < 39; i++) {
         parentTab = selection.splice(0, 2);
         childTab = crossover(parentTab[0], parentTab[1]);
-        population.push(childTab[0], childTab[1], childTab[2], childTab[3]);
+        population.push(childTab[0], childTab[1]);
     }
+
     return population;
 }
 
@@ -252,26 +243,38 @@ module.exports = {
     main: function (data, socket) {
         var searchValue = data,
             resultat,
-            best;
+            best,
+            formula;
 
         if (searchValue === 0) {
             socket.emit('err', 'Set a number ! ¯\\_(ツ)_/¯');
             return;
         }
-        var population = makePopulation();
+        var population = makePopulation(100);
 
         for (var i = 0; i < 1000; i++) {
             resultat = scorePopulation(population, searchValue).sort(compare);
-            best = resultat[0][0];
-            if (best === 0) {
-                socket.emit('result', 'Formula : '+ geneToFormula(chromosomeToGene(resultat[0])) + ' Generation n° ' + (i))
-                break;
+            best = resultat[0];
+            formula = geneToFormula(chromosomeToGene(best));
+
+            if (best[0] === 0) {
+                //Check if formula is human readable
+                if (checkFormula(formula)) {
+                    socket.emit('result', {
+                        number: searchValue,
+                        formula: formula,
+                        nbIteration: i
+                        }
+                    );
+                    break;
+                }
             }
             population = mutation(nextGeneration(selection(population)));
-        }
+        };
         
-        if (best !== 0) {
-            socket.emit('err', 'This time we don\'t find formula... Best one is: ' + geneToFormula(chromosomeToGene(resultat[0])));
-        }
+        if (best[0] !== 0) {
+            //In case of extremum local, reload everything
+            this.main(searchValue, socket);
+       }
     }
 }
